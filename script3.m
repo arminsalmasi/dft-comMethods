@@ -25,8 +25,8 @@ convcrit=1e-07;
 
 
 % Construct first guess of charge density * r
-for i = 2:Nmax-1,
-   r2DensityInit(i) = % ## ## # fill in here ## ## #; % a hydrogen 1s orbital, suitably normalized.
+for i = 2:Nmax-1
+   r2DensityInit(i) = 1% ## ## # fill in here ## ## #; % a hydrogen 1s orbital, suitably normalized.
 end
 r2DensityInit(1) = 0; r2DensityInit(Nmax) = 0;
 
@@ -43,14 +43,18 @@ r2DensityOld = r2DensityInit;
 % Form of problem: Ay = b. 
 
 % Construct trigonal square matrix AH. AH has dimension (Nmax-2).
+AH=-2*eye(Nmax-2,Nmax-2);          %Diagonal
+B = zeros(1,Nmax-2);
+B(1)= -2; B(2) = 1;
+AH = toeplitz(B);
 
-AH=-2*eye(Nmax-2,Nmax-2);
-for i = 1:Nmax-3,
-   AH(i,i+1) = 1;
-end
-for i = 2:Nmax-2,
-   AH(i,i-1) = 1;
-end
+% AH=-2*eye(Nmax-2,Nmax-2);
+% for i = 1:Nmax-3
+%    AH(i,i+1) = 1;
+% end
+% for i = 2:Nmax-2
+%    AH(i,i-1) = 1;
+% end
 
 % Boundary conditions
 BC0 = 0; BCNmax = q;
@@ -68,7 +72,7 @@ while (ediff >=convcrit)   % iteratate until convergence
    clear yH;
    
 % Calculate b on the mesh, and shift the index 
-for i = 2:Nmax-1,
+for i = 2:Nmax-1
      bH(i-1) = -h^2*4*pi*r2DensityOld (i)/r(i);
 end
 
@@ -84,19 +88,25 @@ yH = AH\bH;
 % final result - attach the first and last points.
 % rVH is the hartree potential times r.
 rVH(1) = BC0; rVH(Nmax) = BCNmax;
-for i = 1:Nmax-2,
+for i = 1:Nmax-2
    rVH(i+1) = yH(i);
 end
 
 rVHsave(niter,:) = rVH; % save to check convergence of the Hartree potential
-
+%% #Armin: 
+%         [Exc(n) = int{ d^3.r.n(r). epsilon_x+c_hom(n(r))) } ] 
+%         [epsilon_x_hom(n(r)) = (-3/4) . (3/Pi)^(1/3) . n(r)^(1/3) ] 
+%         [epsilon_c_hom(n(r)) =  A ln rs + B + Crs ln rs + Drs, rs < 1]
+%         [n(r) = exp(-2.r)/Pi] =>
+%         [Exc(n) = int{ d^3 . (exp(-2.r)/Pi) . r . (-3/4) . (3/Pi)^(1/3) . (exp(-2.r)/Pi)^(1/3) } ]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Exchange term %%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-for i = 1:Nmax,
+
+for i = 1:Nmax
    DensityOld(i) = r2DensityOld (i)/(r(i)*r(i));
-   ex(i) = % ## ## # fill in here ## ## #
-   Vx(i) = % ## ## # fill in here ## ## #
+   ex(i) = - 4 * pi * h^2 * r(i) * ( (1/pi) * exp (-2 * r(i) ) ) * (ec(i)+Vc(i))%% * epsilon_x+c_hom(n(r)  % ## ## # fill in here ## ## #
+   Vx(i) = (ec(i)+ Vc(i))% ## ## # fill in here ## ## #
 %   Vx(i) = 0; ex(i) = 0; % test the effect of removing exchange
 end
 
@@ -111,12 +121,12 @@ A = 0.0311; B = -0.048; C = 0.0020; D = -0.0116;
 % gamma = -0.0843; beta1 = 1.3981; beta2 = 0.2611; 
 % A = 0.01555; B = -0.0269; C = 0.0014; D = -0.0108;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-for i = 1:Nmax,
+for i = 1:Nmax
    DensityOld(i) = r2DensityOld (i)/(r(i)*r(i));
-   if DensityOld(i) < 0.0001,
+   if DensityOld(i) < 0.0001
       Vc(i) = 0; ec(i) = 0;
    else  
-      rs = % ## ## # fill in here ## ## #
+      rs = 1% ## ## # fill in here ## ## #
       if rs >= 1,
          ec(i) = gamma/(1 + beta1*sqrt(rs) + beta2*rs); % rs > 1
          Vc(i) = ec(i)*(1+(7/6)*beta1*sqrt(rs)+beta2*rs)/(1+beta1*sqrt(rs)+beta2*rs); % rs > 1
@@ -178,7 +188,7 @@ r2Density = rphi.*rphi.*(q/(4*pi))./( trapz(r,rphi.*rphi) ); % This is the radia
 
 % Copy over the new density. Mix.
 mix = 0.5; % mixing parameter
-r2DensityOld = % ## ## # fill in here ## ## #
+%r2DensityOld = % ## ## # fill in here ## ## #
 
 % Calculate the total energy (Eq .32)
 Etotal = q*lambdaMin - 8*pi*trapz(r, (1/q)*r2Density.*(0.5*rVH./r - ex - ec + Vx + Vc) )

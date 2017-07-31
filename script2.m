@@ -2,32 +2,41 @@
 % Differential equation: -1/2*y'' - 1/x * y = ey. e = eigenvalue. 
 % Solve using equidistant finite differences.
 
-clear all;
+%% #Armin: I followed the instruction here. The output plot shows analytical 
+%          and calcualted values are very close
+%%
+
+clear variables; clc; close all;
 
 % Construct mesh with npts mesh points. rmin and rmax are the end points of the mesh.
 rmin = 0.00000001;
 rmax = 20;
 npts = 400;
 
-r=linspace(rmin,rmax,npts);
-h = %##### insert correct expression for the step size h #####
-
+r = linspace(rmin,rmax,npts);
+%% #Armin: I am not sure about abs() term. It may be completely unncessary 
+h = abs(rmin - rmax)/npts ;% insert correct expression for the step size h
+%% #Armin: It may be more efficient to use toeplitz function to make a toeplitz
 % Construct tridiagonal matrix A. This square matrix has dimension npts-2.
 % Zero the matrix
-for i = 1:npts-2,
-   for j = 1:npts-2,
-      A(i,j) = 0;  
-      A(i,i) = %##### insert correct expression for the diagonal terms in A #####; % hydrogen atom
-
-   end
-end
-for i = 1:npts-3,
-   A(i,i+1) = %##### insert correct expression #####;
-end
-for i = 2:npts-2,
-   A(i,i-1) = %##### insert correct expression #####;
-end
-
+A=-2*eye(npts-2,npts-2);          %Diagonal
+B = zeros(1,npts-2);
+B(1)= -2; B(2) = 1;
+A = toeplitz(B);
+% for i = 1:npts-2
+%    for j = 1:npts-2
+%       A(i,j) = 0;  
+%       A(i,i) = ;%##### insert correct expression for the diagonal terms in A #####; % hydrogen atom
+% 
+%    end
+% end
+% for i = 1:npts-3
+%    A(i,i+1) =1; %##### insert correct expression #####;
+% end
+% for i = 2:npts-2
+%    A(i,i-1) =1; %##### insert correct expression #####;
+% end
+%% 
 % rescale A so that we get an ordinary eigenvalue problem
 A = A./(-2*h^2);
 
@@ -75,7 +84,7 @@ clf
 hold on
 plot(r,r2R2Calc,'k-')
 plot(r,r2R2Anal,'r-')
-legend('Calc','Analytical',1)
+legend('Calc','Analytical')
 xlabel('r(au)')
 ylabel('r^2R^2 (au)')
 box on
