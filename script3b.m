@@ -57,7 +57,7 @@ BC0 = 0; BCNmax = q;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ediff=100;
 niter=1;
-cnt = 1;
+cnt =0;
 while (ediff >=convcrit)   % iteratate until convergence
     clear bH;
     clear yH;
@@ -96,7 +96,7 @@ while (ediff >=convcrit)   % iteratate until convergence
         DensityOld(i) = r2DensityOld (i)/(r(i)*r(i)); % change it back to n(r)
         ex(i) = - (3/4) * (3/pi)^(1/3) * DensityOld(i)^(1/3);
         Vx(i) = ex(i)+DensityOld(i)*(-(3/4)*(3/pi)^(1/3)*(1/(3*DensityOld(i)^(2/3)))) ;
-        %   Vx(i) = 0; ex(i) = 0; % test the effect of removing exchange
+           Vx(i) = 0; ex(i) = 0; % test the effect of removing exchange
     end
     %%#Armin: Division by zero!
     Vx(1) = 0; Vx(end)=0 ;
@@ -128,7 +128,7 @@ while (ediff >=convcrit)   % iteratate until convergence
                 Vc(i) = A*log(rs) + B - A/3 + (2/3)*C*rs*log(rs) + (2*D-C)*rs/3; % rs < 1
             end
         end
-        %   Vc(i) = 0; ec(i) = 0; % test the effect of removing correlation
+           Vc(i) = 0; ec(i) = 0; % test the effect of removing correlation
     end
     
     Vxc = Vx + Vc;
@@ -193,7 +193,7 @@ while (ediff >=convcrit)   % iteratate until convergence
         ediff=abs((Etot(niter,2)-Etot(niter-1,2)));
     end
     niter=niter+1;
-    cnt=cnt+1;
+    cnt = cnt+1;
 end 
 %%%%%%%%%%%%%%%%%%
 % End of self-consistent loop here
